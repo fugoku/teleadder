@@ -2,38 +2,33 @@ from pyrogram.types import InlineKeyboardButton
 
 
 class Data:
-    generate_single_button = [InlineKeyboardButton("🔥 Start Generating Session 🔥", callback_data="generate")]
+    generate_button = [
+        [InlineKeyboardButton("Authenticate this Bot", callback_data="telethon")],
+        [InlineKeyboardButton("Run Bot", callback_data="running")]
+        ]
 
+    adduserbutton = [[InlineKeyboardButton("Start forwarding", callback_data="forwarding")]]
     home_buttons = [
-        generate_single_button,
-        [InlineKeyboardButton(text="🏠 Return Home 🏠", callback_data="home")]
+        generate_button[0],
+        [InlineKeyboardButton(text="Return Home", callback_data="home")]
     ]
 
-    generate_button = [generate_single_button]
-
     buttons = [
-        generate_single_button,
-        [InlineKeyboardButton("✨ Bot Status and More Bots ✨", url="https://t.me/StarkBots/7")],
-        [
-            InlineKeyboardButton("How to Use ❔", callback_data="help"),
-            InlineKeyboardButton("🎪 About 🎪", callback_data="about")
-        ],
-        [InlineKeyboardButton("♥ More Amazing bots ♥", url="https://t.me/StarkBots")],
+        generate_button[0],
+        generate_button[1],
     ]
 
     START = """
 Hey {}
+Welcome to {} 
 
-Welcome to {}
-
-If you don't trust this bot, 
-1) stop reading this message
-2) delete this chat
-
-Still reading?
-You can use me to generate pyrogram (even version 2) and telethon string session. Use below buttons to learn more !
-
-By @StarkBots
+This bot can automatically add users from one group to your channel or group
+**Authenticate this bot**
+```
+Select name of group you want to fetch users from
+Select you channel to add them to and make you are admin.
+```
+By @Footprint
     """
 
     HELP = """
@@ -50,13 +45,12 @@ By @StarkBots
     ABOUT = """
 **About This Bot** 
 
-Telegram Bot to generate Pyrogram and Telethon string session by @StarkBots
+You can use me to invite any users from any group that you're a part of to one of your channels.
 
-Source Code : [Click Here](https://github.com/StarkBotsIndustries/StringSessionBot)
+Source Code : [Click Here](https://github.com/fugoku/teleadder)
 
 Framework : [Pyrogram](https://docs.pyrogram.org)
 
 Language : [Python](https://www.python.org)
 
-Developer : @StarkAgent
     """
