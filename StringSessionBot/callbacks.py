@@ -49,7 +49,7 @@ async def _callbacks(bot: Client, callback_query: CallbackQuery):
     
     elif query == "forwarding":
         await callback_query.answer()
-        await forwarder_function(bot, callback_query.message, telethon=True)
+        await get_process_data(bot, callback_query.message, telethon=True)
         
     elif query == "running":
         await callback_query.answer()

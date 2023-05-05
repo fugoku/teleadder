@@ -4,6 +4,8 @@ from pyrogram import Client, filters
 from asyncio.exceptions import TimeoutError
 from telethon.sessions import StringSession
 import env
+import time
+from .catcher import catcher
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import (
     ApiIdInvalid,
@@ -14,6 +16,9 @@ from pyrogram.errors import (
     PasswordHashInvalid
 )
 
+from telethon.tl.functions.channels import InviteToChannelRequest
+from telethon.errors.rpcerrorlist import PeerFloodError, UserPrivacyRestrictedError, UserNotMutualContactError, ChatWriteForbiddenError
+import traceback
 from telethon.errors import (
     ApiIdInvalidError,
     PhoneNumberInvalidError,
@@ -205,6 +210,10 @@ async def get_process_data(bot: Client, msg: Message, telethon=False, is_bot: bo
 
         last_user_id = start_point
 
+
+        # participants = await catcher(source_entity, target_entity, client, last_user_id)
+
+
         while True:
             # fetch the next batch of participants from the source group
             participants = await client.get_participants(source_entity, limit=50)
@@ -214,15 +223,37 @@ async def get_process_data(bot: Client, msg: Message, telethon=False, is_bot: bo
                 break
 
             # filter out participants that have already been processed
-            filtered_participants = [p for p in participants if p.id > last_user_id]
+            filtered_participants = [p for p in participants if p.id > last_user_id.id]
 
             # add each remaining participant to the target group/channel
             for participant in filtered_participants:
+
                 user_id = participant.id
                 try:
                     await client(InviteToChannelRequest(target_entity, [user_id]))
+                    time.sleep(random.randint(1, 5))
                 except UserAlreadyParticipantError:
                     pass
+                except PeerFloodError:
+                    print("Getting Flood Error from telegram. Script is stopping now. Please try again after some time.")
+                    return "Flooded"
+
+                except UserPrivacyRestrictedError:
+                    print("The user's privacy settings do not allow you to do this. Skipping.")
+                    return "Restricted"
+
+                except ChatWriteForbiddenError:
+                    print("The session is not an Admin and cannot add user, please make Admin and try again")
+                    return "NotAdmin"
+
+                except UserNotMutualContactError:
+                    print("The user isn't a mutal contact")
+                    return False
+
+                except:
+                    traceback.print_exc()
+                    print("Unexpected Error")
+                return "Good"
 
             # update the last user ID processed to the ID of the last participant in the current batch
             last_user_id = participants[-1].id
@@ -230,34 +261,6 @@ async def get_process_data(bot: Client, msg: Message, telethon=False, is_bot: bo
 
     except PeerIdInvalidError:
         print("Invalid group/channel link provided.")
-
-
-
-
-        
-
-    # except (ApiIdInvalid, ApiIdInvalidError):
-    #     await msg.reply('`API_ID` and `API_HASH` combination is invalid. Please start generating session again.', reply_markup=InlineKeyboardMarkup(Data.generate_button))
-    #     return
-
-    # try:
-    #     if not is_bot:
-    #         if telethon:
-    #             code = await client.send_code_request(phone_number)
-    #         else:
-    #             code = await client.send_code(phone_number)
-    # except (ApiIdInvalid, ApiIdInvalidError):
-    #     await msg.reply('`API_ID` and `API_HASH` combination is invalid. Please start generating session again.', reply_markup=InlineKeyboardMarkup(Data.generate_button))
-    #     return
-    # except (PhoneNumberInvalid, PhoneNumberInvalidError):
-    #     await msg.reply('`PHONE_NUMBER` is invalid. Please start generating session again.', reply_markup=InlineKeyboardMarkup(Data.generate_button))
-    #     return
-
-
-
-
-    # return False
-
 
 
 async def cancelled(msg):
